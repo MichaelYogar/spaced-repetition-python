@@ -7,8 +7,10 @@ from pprint import pprint
 load_dotenv()
 
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 FILENAME = os.environ.get("FILENAME")
+SPREADSHEET_NAME = os.environ.get("SPREADSHEET_NAME")
+
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 
 def main():
@@ -17,9 +19,9 @@ def main():
         FILENAME, scopes=SCOPES)
     service = build("sheets", "v4", credentials=credentials)
 
-    request = service.spreadsheets().values().get(
+    request = service.spreadsheets().values().batchGet(
         spreadsheetId=SPREADSHEET_ID,
-        range="A1:D61",
+        ranges=[f"'{SPREADSHEET_NAME}'!A:A", f"'{SPREADSHEET_NAME}'!G:G"],
     )
     response = request.execute()
     pprint(response)
