@@ -21,10 +21,9 @@ def main():
 
     request = service.spreadsheets().values().batchGet(
         spreadsheetId=SPREADSHEET_ID,
-        ranges=[f"'{SPREADSHEET_NAME}'!A:A", f"'{SPREADSHEET_NAME}'!G:G"],
-    )
+        ranges=[f"'{SPREADSHEET_NAME}'!{x}" for x in ["A:A", "G:G"]])
     response = request.execute()
-    pprint(response)
+    pprint(response["valueRanges"])
 
 
 if __name__ == "__main__":
