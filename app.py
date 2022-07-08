@@ -1,29 +1,28 @@
-import os
-from googleapiclient.discovery import build
 from dotenv import load_dotenv
-from google.oauth2 import service_account
 from pprint import pprint
+from sheet import Sheet
+from pprint import pprint
+
+import os
 
 load_dotenv()
 
 SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 FILENAME = os.environ.get("FILENAME")
 SPREADSHEET_NAME = os.environ.get("SPREADSHEET_NAME")
-
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 
 def main():
 
-    credentials = service_account.Credentials.from_service_account_file(
-        FILENAME, scopes=SCOPES)
-    service = build("sheets", "v4", credentials=credentials)
+    ranges = [
+        f"'{SPREADSHEET_NAME}'!{x}" for x in ["A:A", "D:D", "G:G", "H:H"]
+    ]
+    sheet = Sheet(FILENAME, SCOPES, SPREADSHEET_NAME)
+    result = sheet.values_batch_get(spreadsheet_id=SPREADSHEET_ID,
+                                    ranges=ranges)
 
-    request = service.spreadsheets().values().batchGet(
-        spreadsheetId=SPREADSHEET_ID,
-        ranges=[f"'{SPREADSHEET_NAME}'!{x}" for x in ["A:A", "G:G"]])
-    response = request.execute()
-    pprint(response["valueRanges"])
+    pprint(result)
 
 
 if __name__ == "__main__":
