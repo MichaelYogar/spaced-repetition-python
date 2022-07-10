@@ -23,7 +23,7 @@ class Sheet:
         self.service = build("sheets", "v4", credentials=credentials)
         self.sheet_name = sheet_name
 
-    def values_batch_get(self, spreadsheet_id, ranges, major_dimension="ROWS"):
+    def values_batch_get(self, spreadsheet_id, ranges, major_dimension="ROWS", value_render_option = 'FORMATTED_VALUE'):
         """Returns one or more ranges of values from a spreadsheet.
         :param spreadsheet_id:  The ID of the spreadsheet to retrieve data from.
         :param value_ranges:    The A1 notation of the range to retrieve values from.
@@ -34,6 +34,7 @@ class Sheet:
         request = self.service.spreadsheets().values().batchGet(
             spreadsheetId=spreadsheet_id,
             ranges=ranges,
+            valueRenderOption=value_render_option,
             majorDimension=major_dimension,
         )
         response = self._make_request(request)
@@ -43,3 +44,4 @@ class Sheet:
     def _make_request(self, request):
         response = request.execute()
         return response
+    
