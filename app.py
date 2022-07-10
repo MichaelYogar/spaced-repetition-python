@@ -17,7 +17,7 @@ def flatten_list(list2d):
     new_list = []
     for data in list2d:
         # Keep entries with empty cells
-        new_list.append(data[0] if data else "")
+        new_list.append(data[0] if data else None) 
     return new_list
 
 def sheet_data_to_df(sheet_data):
@@ -32,7 +32,7 @@ def sheet_data_to_df(sheet_data):
     for value in dict.values():
         if len(value) < maxLen:
             # Ensure each column is the same length
-            value.extend(['']*(maxLen - len(value)))
+            value.extend([None]*(maxLen - len(value)))
 
     df = pd.DataFrame(dict, columns=dict.keys())
     return df
@@ -48,7 +48,9 @@ def main():
                                     ranges=ranges)
 
     df = sheet_data_to_df(data)
-    print(df)
+
+    # Remove rows with empty cells
+    df.dropna(inplace=True)
 
 
 if __name__ == "__main__":
