@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
 from pprint import pprint
+
+from numpy import isin
 from sheet import Sheet
 from pprint import pprint
 
@@ -21,21 +23,27 @@ def flatten_list(list2d):
     return new_list
 
 def sheet_data_to_df(sheet_data):
-    # Convert into list[ValueRange] into dict[header, values]
-    dict = {}
-    for col in sheet_data:
-        flat_list = flatten_list(col['values'][1:])
-        dict[col['values'][0][0]] = flat_list
+    if isinstance(sheet_data, list) and len(sheet_data) > 0:
+        # Convert into list[ValueRange] into dict[header, values]
+        dict = {}
+        for col in sheet_data:
+            flat_list = flatten_list(col['values'][1:])
+            dict[col['values'][0][0]] = flat_list
 
 
-    maxLen = len(max(dict.values()))
-    for value in dict.values():
-        if len(value) < maxLen:
-            # Ensure each column is the same length
-            value.extend([None]*(maxLen - len(value)))
+        maxLen = len(max(dict.values()))
+        for value in dict.values():
+            if len(value) < maxLen:
+                # Ensure each column is the same length
+                value.extend([None]*(maxLen - len(value)))
 
-    df = pd.DataFrame(dict, columns=dict.keys())
-    return df
+        df = pd.DataFrame(dict, columns=dict.keys())
+
+        # Remove rows with empty cells
+        df.dropna(inplace=True)
+        return df
+    else:
+        return None
 
 
 def main():
@@ -49,8 +57,9 @@ def main():
 
     df = sheet_data_to_df(data)
 
-    # Remove rows with empty cells
-    df.dropna(inplace=True)
+    if df is None:
+        print("Data is invalid")
+
 
 
 if __name__ == "__main__":
