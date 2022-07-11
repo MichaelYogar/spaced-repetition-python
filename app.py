@@ -4,6 +4,7 @@ from pprint import pprint
 from sheet import Sheet
 from pprint import pprint
 from pandas_utils import drop_rows_by_filter
+from datetime import datetime as DateTime, timedelta as TimeDelta
 
 import sys
 import pandas as pd
@@ -15,6 +16,41 @@ SPREADSHEET_ID = os.environ.get("SPREADSHEET_ID")
 FILENAME = os.environ.get("FILENAME")
 SPREADSHEET_NAME = os.environ.get("SPREADSHEET_NAME")
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+
+def calculate_due_date(date, repeat):
+    match repeat:
+        case "1":
+            return date + TimeDelta(days=1)
+        case "2":
+            return date + TimeDelta(days=3)
+        case "3":
+            return date + TimeDelta(days=7)
+        case _:
+            return date
+
+def get_required_rows(df):
+    """
+    :param Dateframe with `Needs Review` == 1 \n
+    Needs Review and Repeated:
+                1 times -> Due 1 day from entry date. \n
+                2 times -> Due 3 day from entry date. \n
+                3 times -> Due 7 day from entry date \n
+    """
+
+    # Get only rows that need review
+    drop_rows_by_filter(df, filter = df['Needs Review'] == "0")
+
+    # Pandas dateframe to 2-D List
+    result = [[x, y, z] for x, y, z in zip(df['Date'], df['Problem'], df['Repeat'])]
+
+    # Required questions based on Spatial Repetition
+    today = DateTime.now()
+    for date_entry, problem, repeats in result:
+        datetime_object = DateTime.strptime(date_entry, '%d-%b')
+        date = calculate_due_date(datetime_object, repeats)
+        if date.day == today.day and date.month == today.month:
+            # Output questions to do
+            print(problem)
 
 def flatten_list(list2d):
     new_list = []
@@ -31,7 +67,6 @@ def sheet_data_to_df(sheet_data):
             flat_list = flatten_list(col['values'][1:])
             dict[col['values'][0][0]] = flat_list
 
-
         maxLen = len(max(dict.values()))
         for value in dict.values():
             if len(value) < maxLen:
@@ -46,9 +81,7 @@ def sheet_data_to_df(sheet_data):
     else:
         raise ValueError("Invalid Sheet data")
 
-
 def main():
-
     try:
         ranges = [
             f"'{SPREADSHEET_NAME}'!{x}" for x in ["A:A", "C:C", "G:G", "H:H"]
@@ -57,13 +90,11 @@ def main():
         data = sheet.values_batch_get(spreadsheet_id=SPREADSHEET_ID,
                                         ranges=ranges)
         df = sheet_data_to_df(data)
-        drop_rows_by_filter(df, df['Needs Review'] == "0")
+        get_required_rows(df)
 
     except ValueError as exp:
         print ("Error:", exp)
         sys.exit()
-
-
 
 if __name__ == "__main__":
     main()
