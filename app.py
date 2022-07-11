@@ -3,6 +3,7 @@ from pprint import pprint
 
 from sheet import Sheet
 from pprint import pprint
+from pandas_utils import drop_rows_by_filter
 
 import sys
 import pandas as pd
@@ -56,7 +57,8 @@ def main():
         data = sheet.values_batch_get(spreadsheet_id=SPREADSHEET_ID,
                                         ranges=ranges)
         df = sheet_data_to_df(data)
-        print(df)
+        drop_rows_by_filter(df, df['Needs Review'] == "0")
+
     except ValueError as exp:
         print ("Error:", exp)
         sys.exit()
