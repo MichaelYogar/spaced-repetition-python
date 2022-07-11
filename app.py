@@ -23,7 +23,7 @@ def flatten_list(list2d):
     return new_list
 
 def sheet_data_to_df(sheet_data):
-    if isinstance(sheet_data, list) and len(sheet_data) > 0:
+    if Sheet.is_valid_sheet_data(sheet_data):
         # Convert into list[ValueRange] into dict[header, values]
         dict = {}
         for col in sheet_data:

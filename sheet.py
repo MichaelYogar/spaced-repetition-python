@@ -39,6 +39,10 @@ class Sheet:
         )
         response = self._make_request(request)
         return response.get('valueRanges', [])
+    
+    @staticmethod
+    def is_valid_sheet_data(sheet_data):
+        return isinstance(sheet_data, list) and len(sheet_data) > 0
 
     # TODO: add rate limiting
     def _make_request(self, request):
