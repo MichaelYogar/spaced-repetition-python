@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
 from pprint import pprint
 
-from numpy import isin
 from sheet import Sheet
 from pprint import pprint
 
+import sys
 import pandas as pd
 import os
 
@@ -43,22 +43,23 @@ def sheet_data_to_df(sheet_data):
         df.dropna(inplace=True)
         return df
     else:
-        return None
+        raise ValueError("Invalid Sheet data")
 
 
 def main():
 
-    ranges = [
-        f"'{SPREADSHEET_NAME}'!{x}" for x in ["A:A", "C:C", "G:G", "H:H"]
-    ]
-    sheet = Sheet(FILENAME, SCOPES, SPREADSHEET_NAME)
-    data = sheet.values_batch_get(spreadsheet_id=SPREADSHEET_ID,
-                                    ranges=ranges)
-
-    df = sheet_data_to_df(data)
-
-    if df is None:
-        print("Data is invalid")
+    try:
+        ranges = [
+            f"'{SPREADSHEET_NAME}'!{x}" for x in ["A:A", "C:C", "G:G", "H:H"]
+        ]
+        sheet = Sheet(FILENAME, SCOPES, SPREADSHEET_NAME)
+        data = sheet.values_batch_get(spreadsheet_id=SPREADSHEET_ID,
+                                        ranges=ranges)
+        df = sheet_data_to_df(data)
+        print(df)
+    except ValueError as exp:
+        print ("Error:", exp)
+        sys.exit()
 
 
 
