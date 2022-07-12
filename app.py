@@ -52,31 +52,25 @@ def get_required_rows(df):
             # Output questions to do
             print(problem)
 
-def flatten_list(list2d):
-    new_list = []
-    for data in list2d:
-        # Keep entries with empty cells
-        new_list.append(data[0] if data else None) 
-    return new_list
-
 def get_longest_subarray(list2D):
     return max(list2D, key=len)
 
 def sheet_data_to_df(sheet_data):
     if Sheet.is_valid_sheet_data(sheet_data):
         # Convert into list[ValueRange] into dict[header, values]
+
         dict = {}
+        max_len = 0
         for col in sheet_data:
-            flat_list = flatten_list(col['values'][1:])
+            flat_list = [data[0] if data else None for data in col['values'][1:]]
             dict[col['values'][0][0]] = flat_list
+            max_len = max(max_len, len(flat_list))
 
-        values = dict.values()
-        maxLen = len(get_longest_subarray(values))
 
-        for value in values:
-            if len(value) < maxLen:
+        for value in dict.values():
+            if len(value) < max_len:
                 # Ensure each column is the same length
-                value.extend([None]*(maxLen - len(value)))
+                value.extend([None]*(max_len- len(value)))
 
         df = pd.DataFrame(dict, columns=dict.keys())
 
